@@ -1,67 +1,56 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using RSMEnterpriseIntegrationsAPI.Domain.Interfaces;
-using RSMEnterpriseIntegrationsAPI.Domain.Models;
-using RSMEnterpriseIntegrationsAPI.Domain.Repositories;
-
 namespace RSMEnterpriseIntegrationsAPI.Infrastructure.Repositories
 {
-    public class SalesOrderHeaderRepository<TEntity> : ISalesOrderHeaderRepository <TEntity> where TEntity : class
-    {
-        protected readonly AdvWorksDbContext _context;
+    using Microsoft.EntityFrameworkCore;
 
+    using RSMEnterpriseIntegrationsAPI.Domain.Interfaces;
+    using RSMEnterpriseIntegrationsAPI.Domain.Models;
+
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    public class SalesOrderHeaderRepository : ISalesOrderHeaderRepository
+    {
+        private readonly AdvWorksDbContext _context;
         public SalesOrderHeaderRepository(AdvWorksDbContext context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
         }
 
-        public IQueryable<TEntity> GetAll()
+        public async Task<int> CreateSalesOrderHeader(SalesOrderHeader salesOrderHeader)
         {
-            return _context.Set<TEntity>().AsNoTracking();
+            await _context.AddAsync(salesOrderHeader);
+
+            return await _context.SaveChangesAsync();
         }
 
-            public async Task<TEntity?> GetByIdAsync(int id)
-            {
-                return await _context.Set<TEntity>().FindAsync(id);
-            }
-
-        public async Task CreateAsync(TEntity entity)
+        public async Task<int> DeleteSalesOrderHeader(SalesOrderHeader salesOrderHeader)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
+            _context.Remove(salesOrderHeader);
 
-            await _context.Set<TEntity>().AddAsync(entity);
-            await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(TEntity entity)
+        public async Task<IEnumerable<SalesOrderHeader>> GetAllSalesOrderHeader(int pageNumber, int pageSize)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            return await _context.SalesOrderHeaders
+                    .AsNoTracking()
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                 .ToListAsync();
         }
 
-        public async Task DeleteAsync(TEntity entity)
+        public async Task<SalesOrderHeader?> GetSalesOrderHeaderById(int id)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            _context.Set<TEntity>().Remove(entity);
-            await _context.SaveChangesAsync();
+            return await _context.SalesOrderHeaders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d=>d.SalesOrderHeaderId == id);
         }
-    }
 
-    public interface ISalesOrderHeaderRepository<TEntity> where TEntity : class
-    {
+        public async Task<int> UpdateSalesOrderHeader(SalesOrderHeader salesOrderHeader)
+        {
+            _context.Update(salesOrderHeader);
+
+            return await _context.SaveChangesAsync();
+        }
     }
 }

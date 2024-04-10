@@ -1,17 +1,13 @@
-using RSMEnterpriseIntegrationsAPI.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace RSMEnterpriseIntegrationsAPI.Domain.Repositories
+namespace RSMEnterpriseIntegrationsAPI.Domain.Interfaces
 {
+    using RSMEnterpriseIntegrationsAPI.Domain.Models;
+
     public interface ISalesOrderHeaderRepository
     {
-        Task<IEnumerable<SalesOrderHeader>> ListAsync();
-        Task AddAsync(SalesOrderHeader salesOrderHeader);
-        Task<SalesOrderHeader> FindByIdAsync(int id);
-        void Update(SalesOrderHeader salesOrderHeader);
-        void Remove(SalesOrderHeader salesOrderHeader);
-        Task CompleteAsync();
+        Task<SalesOrderHeader?> GetSalesOrderHeaderById(int id);
+        Task<IEnumerable<SalesOrderHeader>> GetAllSalesOrderHeader(int pageNumber, int pageSize);
+        Task<int> CreateSalesOrderHeader(SalesOrderHeader salesOrderHeader);
+        Task<int> UpdateSalesOrderHeader(SalesOrderHeader salesOrderHeader);
+        Task<int> DeleteSalesOrderHeader(SalesOrderHeader salesOrderHeader);
     }
 }
